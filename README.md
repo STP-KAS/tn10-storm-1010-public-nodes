@@ -1,6 +1,54 @@
-# TN10 public-node load run — Sat 10 Oct 2026
+> **Experimental. We are just trying this.** Kaspa Testnet-10 only; tKAS has no value.
 
-**Certainty labels used in this repo**
+# tn10-storm-1010-public-nodes: the bot on the five public TN10 nodes
+
+**Status:** done. Sat 10 Oct 2026, about 14:23 to 16:18 CEST (12:23 to 14:18 UTC). Private for now; made public after tonight's run, once the logs are on it.
+
+## Map: where to find what
+
+| Folder or file | What is in it |
+|---|---|
+| [README.md](README.md) | This page: map, intro, briefing, results |
+| [REPORT.md](REPORT.md) | The full report: numbers, per-node behaviour, what went wrong and the fixes, Build overlap, handoff, labels |
+| [data/](data/) | The raw counts (no txids, keys or addresses) |
+| [data/minute.csv](data/minute.csv) | Bot rates every ~10 s to 60 s: senders, submitted, rejected, accepted, blocks, mempool, CPU, RAM, disk, per-node ok/rej/err |
+| [data/host-10s.csv](data/host-10s.csv) | Box CPU, RAM, disk and sender count every 10 s |
+| [data/events.csv](data/events.csv), [data/events.jsonl](data/events.jsonl) | Scale steps, node drops, fee change, aborts, in order |
+| [tn10-storm-1010](https://github.com/STP-KAS/tn10-storm-1010) | **The new plan** (private): tonight's bot run and build run, T0 20:30 CEST, built on these lessons |
+| [Kaspa Pulse (@gokugalax)](https://x.com/gokugalax) | The outside counter whose method shaped the plans this tooling came from |
+
+## Intro
+
+**What.** A short, maximum-effort load run: the bot's hop senders submitted to the **five public TN10 nodes** (`muon-10.kaspa.blue`, `boson-10.kaspa.red`, `electron-10.kaspa.blue`, `neutrino-10.kaspa.stream`, `vector-10.kaspa.green`), while the bot's private node n2 stayed the reader (sync, UTXO index, accepted counts). Ordered by stp at 14:20 CEST.
+
+**Why.** n2 is disk-tight after a full sync. We wanted a measured answer: how hard can public nodes be pushed from one box, and does a second submit path take load off our own node?
+
+**How.** A copy of the bot sender, random public nodes per sender, the shared coin list and claim ledger (no double spends with other runs), a launcher that scales up to the RAM/CPU limit, per-node cool-down on errors, counts every 10 s and every minute. Details: [REPORT.md](REPORT.md).
+
+## Briefing
+
+- Build sent to the same five public nodes from about 14:22 CEST with its own coins, so network counts were combined; the bot's counts in [data/minute.csv](data/minute.csv) are bot only.
+- Fees went from 200 to **400 sompi/gram** at 14:26 CEST (stp).
+- The run ended before tonight's plan; its lessons are folded into [tn10-storm-1010](https://github.com/STP-KAS/tn10-storm-1010).
+
+## Results (Claim (measured on TN10) unless marked)
+
+| Key number | Value | Detail |
+|---|---|---|
+| Peak bot submitted | about **3,168 tx/s** at 14:38 CEST (22 senders), about 2,969 accepted | [REPORT.md](REPORT.md#summary-claim--measured-on-tn10) |
+| Earlier highs | about 2,415 tx/s at 14:27 CEST (21 senders); about **2,430 tx/s** at about 14:35 CEST (19 senders, fees 400) | [data/minute.csv](data/minute.csv) |
+| Clean hold | about **880 to 985 tx/s** submitted on **14 senders**; last row 15:57 CEST: 984.7 submitted, 976.4 accepted, 0 rejects | [REPORT.md](REPORT.md#summary-claim--measured-on-tn10) |
+| Rejects | 0 in the clean phase for most of the run; spikes only during the launcher overspawn | [REPORT.md](REPORT.md#per-node-behaviour-claim--measured) |
+| Per-node behaviour | muon-10 and vector-10 took most ok submits; boson-10, electron-10 and neutrino-10 often refused connections when many senders booted at once (why: **Not sure / open for debate**) | [REPORT.md](REPORT.md#per-node-behaviour-claim--measured) |
+| Launcher overspawn | two launchers, senders past 20, rate collapsed; fixed with one locked launcher and a hard cap of 14 | [REPORT.md](REPORT.md#what-went-wrong--fixes-claim) |
+| Box limit | RAM: the out-of-memory killer took n2 at about 14:51 CEST above about 20 senders | [REPORT.md](REPORT.md#what-went-wrong--fixes-claim) |
+| n2 tip freeze | about 15:57 to 16:20 CEST; fixed by a restart; since then n2 lag never zeros public-node senders | [REPORT.md](REPORT.md#what-went-wrong--fixes-claim) |
+| Endurance over hours, full five-node balance | **Needs more testing** | [tn10-storm-1010](https://github.com/STP-KAS/tn10-storm-1010) |
+
+**After the run, once the logs are on GitHub, TN10 ops makes this repo public** (after tonight's run, together with tn10-storm-1010).
+
+<details>
+<summary><b>Certainty labels</b></summary>
 
 | Label | Meaning |
 |---|---|
@@ -8,42 +56,6 @@
 | **Not sure / open for debate** | Plausible reading; other explanations fit. |
 | **Needs more testing** | One run is not enough. |
 
-## What
+</details>
 
-A short, maximum-effort load run of the bot's P2W hop senders against **public** TN10 wRPC nodes (Kaspa community resolver endpoints), while the bot's own private node (n2) stays the source of truth for sync, UTXO index, and confirmation tracking.
-
-- Window: about **14:25–16:10 CEST** (12:25–14:10 UTC), ~1 h 45 min. Ended before the 16:15 CEST gate of the scheduled private-node storm (STP-KAS/tn10-storm-1010).
-- Shape: unsigned P2SH(push4 OP_DROP OP_TRUE) hop lanes, fee **200 sompi/gram**, 4 connections per runner, depth 4.
-- Public nodes used (resolver `*.kaspa.{stream,red,green,blue}` → TN10 Borsh):
-  - `muon-10.kaspa.blue`
-  - `boson-10.kaspa.red`
-  - `electron-10.kaspa.blue`
-  - `neutrino-10.kaspa.stream`
-  - `vector-10.kaspa.green` (skipped when its normal fee quote > 200 sompi/gram)
-- Private node n2 on the box: health, virtual-chain-changed, chain counts, mempool. Not used for submit in this run.
-
-This run is **not** the GO agenda in `tn10-storm-1010`. It is a separate experiment ordered at 14:20 CEST to find how hard public nodes can be pushed from one box.
-
-## Why
-
-1. The bot's private node (n2) is disk-constrained after a full IBD. Public nodes give a second path for submit capacity without putting more write load on n2's RocksDB.
-2. We wanted a measured answer to: can 15–30 runners × 4 connections sustain hundreds of tx/s against the public TN10 resolver set for ~2 hours from one host?
-3. Results feed the later private-node storm (17:00 CEST T0) with a clear separation: public-node capacity vs own-node capacity.
-
-## How
-
-1. Copy of the bot sender (`pub-sender.mjs`): submits to a randomly assigned public host list; sync / UTXO / VCC always on n2 loopback.
-2. Shared coin list with the private-node storm (`keel-coins.json`) and the same claim ledger (O_EXCL claim file + append-only used list), so the two runs cannot double-spend.
-3. Orchestrator scales runners up until free RAM ~1.8–2.2 GB or CPU ~85%, then holds. Per-host cool-down on disconnect / error bursts.
-4. Logging every ~10 s (host) and every ~60 s (rates, per-node ok/rej/err, n2 mempool, blocks/s). No per-tx publish. No keys, seeds, or private paths in this repo.
-
-## Data
-
-- `data/minute.csv` — per-minute rates and per-node counters
-- `data/host-10s.csv` — box CPU / RAM / disk / runner count
-- `data/events.jsonl` — scale steps, host drops, abort reasons (no secrets)
-- `REPORT.md` — final numbers and labels (written at end)
-
-## Credit
-
-Kaspa Pulse feedback shaped the earlier GO plans this tooling came from. Public nodes are community-operated via the Kaspa resolver.
+Thank you, Kaspa Pulse ([@gokugalax](https://x.com/gokugalax)): his feedback shaped the GO plans this tooling came from. The public nodes are community-operated via the Kaspa resolver. Counts only: no txid, key, seed, IP, port or wallet address in this repo.
