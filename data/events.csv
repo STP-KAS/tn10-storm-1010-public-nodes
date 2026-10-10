@@ -1,0 +1,3 @@
+t_cest,t_utc,event,detail
+14:26:31,12:26:31,fee_change,"stp 14:25 CEST: fees 200 -> 400 sompi/gram; vector-10 included"
+14:26:31,12:26:31,combined_load,"Build also running on the same 5 public nodes from ~14:22 CEST (own coins); network load is combined"
