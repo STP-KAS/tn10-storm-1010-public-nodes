@@ -2,7 +2,7 @@
 
 # tn10-storm-1010-public-nodes: the bot on the five public TN10 nodes
 
-**Status:** done. Sat 10 Oct 2026, about 14:23 to 16:18 CEST (12:23 to 14:18 UTC). Private for now; made public after tonight's run, once the logs are on it.
+**Status:** done. Sat 10 Oct 2026, about 14:23 to 16:18 CEST (12:23 to 14:18 UTC). Made public after the 10–11 Oct night storm wrap-up.
 
 ## Map: where to find what
 
@@ -14,7 +14,7 @@
 | [data/minute.csv](data/minute.csv) | Bot rates every ~10 s to 60 s: senders, submitted, rejected, accepted, blocks, mempool, CPU, RAM, disk, per-node ok/rej/err |
 | [data/host-10s.csv](data/host-10s.csv) | Box CPU, RAM, disk and sender count every 10 s |
 | [data/events.csv](data/events.csv), [data/events.jsonl](data/events.jsonl) | Scale steps, node drops, fee change, aborts, in order |
-| [tn10-storm-1010](https://github.com/STP-KAS/tn10-storm-1010) | **The new plan** (private): tonight's bot run and build run, T0 20:30 CEST, built on these lessons |
+| [tn10-storm-1010](https://github.com/STP-KAS/tn10-storm-1010) | **The night storm plan and results**: bot run and build run, T0 20:30 CEST 10 Oct, built on these lessons |
 | [Kaspa Pulse (@gokugalax)](https://x.com/gokugalax) | The outside counter whose method shaped the plans this tooling came from |
 
 ## Intro
