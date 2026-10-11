@@ -4,7 +4,7 @@
 >
 > ← previous storm: [tn10-storm-2026-10-10-plan](https://github.com/STP-KAS/tn10-storm-2026-10-10-plan) | next storm: [tn10-storm-2026-10-11](https://github.com/STP-KAS/tn10-storm-2026-10-11) →
 
-# tn10-storm-2026-10-10-public-nodes: the bot on the five public TN10 nodes
+# tn10-storm-2026-10-10-public-nodes · Sat 10 Oct, 12:23-14:18 UTC (14:23-16:18 CEST): the bot on the five public TN10 nodes
 
 **Status:** done. Sat 10 Oct 2026, about 14:23 to 16:18 CEST (12:23 to 14:18 UTC). Made public after the 10–11 Oct night storm wrap-up.
 
